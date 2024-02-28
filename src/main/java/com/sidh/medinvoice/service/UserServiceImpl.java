@@ -38,8 +38,7 @@ public class UserServiceImpl implements UserService {
         User user = User.builder()
                 .email(register.getEmail())
                 .password(encryptedPwd)
-                .firstName(register.getFirstName())
-                .lastName(register.getLastName())
+                .fullName(register.getFullName())
                 .role(role)
                 .build();
         try {
@@ -74,8 +73,7 @@ public class UserServiceImpl implements UserService {
         return LoginResponseDto.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
+                .fullName(user.getFullName())
                 .role(user.getRole())
                 .build();
     }

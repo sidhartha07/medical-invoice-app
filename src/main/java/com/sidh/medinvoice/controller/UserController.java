@@ -68,15 +68,13 @@ public class UserController {
                     {
                       "email": "user@email.com",
                       "password": "userpassword",
-                      "firstName": "firstname",
-                      "lastName": "lastname",
+                      "fullName": "fullname",
                       "role": "userrole"
                     }
                     """))}) @RequestBody RegisterRequestDto request) {
         if (!StringUtils.hasText(request.getEmail()) ||
                 !StringUtils.hasText(request.getPassword()) ||
-                !StringUtils.hasText(request.getFirstName()) ||
-                !StringUtils.hasText(request.getLastName()) ||
+                !StringUtils.hasText(request.getFullName()) ||
                 !StringUtils.hasText(request.getRole())) {
             MessageDto messageDto = MessageDto.builder()
                     .code("10001")
@@ -102,8 +100,7 @@ public class UserController {
                     {
                       "userId": "c49c5cd9-9ca4-4a1e-91f4-b19b39ad8283",
                       "email": "user@email.com",
-                      "firstName": "firstname",
-                      "lastName": "lastname",
+                      "fullName": "fullname",
                       "role": "USER"
                     }
                     """)))

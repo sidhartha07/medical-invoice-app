@@ -55,8 +55,7 @@ public class UserRepositoryImpl implements UserRepository {
         map.put(USER_ID, user.getUserId());
         map.put(EMAIL, user.getEmail());
         map.put(PASSWORD, user.getPassword());
-        map.put(FIRST_NAME, user.getFirstName());
-        map.put(LAST_NAME, user.getLastName());
+        map.put(FULL_NAME, user.getFullName());
         map.put(ROLE, user.getRole());
         map.put(CREATED_DATE_TIME, LocalDateTime.now());
         map.put(UPDATED_DATE_TIME, LocalDateTime.now());

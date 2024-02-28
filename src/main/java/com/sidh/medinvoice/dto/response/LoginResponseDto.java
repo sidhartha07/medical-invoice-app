@@ -14,7 +14,6 @@ import java.io.Serializable;
 public class LoginResponseDto implements Serializable {
     private String userId;
     private String email;
-    private String firstName;
-    private String lastName;
+    private String fullName;
     private String role;
 }
