@@ -19,8 +19,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.sidh.medinvoice.utils.user.UserCmnConstants.*;
-import static com.sidh.medinvoice.utils.user.UserQueries.FIND_USER_BY_EMAIL_PASSWORD;
-import static com.sidh.medinvoice.utils.user.UserQueries.INSERT_USER;
+import static com.sidh.medinvoice.utils.user.UserQueries.*;
 
 @Repository
 public class UserRepositoryImpl implements UserRepository {
@@ -45,9 +44,51 @@ public class UserRepositoryImpl implements UserRepository {
     public User login(String email) {
         MapSqlParameterSource map = new MapSqlParameterSource();
         map.addValue(EMAIL, email);
-        List<User> users = jdbcTemplate.query(FIND_USER_BY_EMAIL_PASSWORD, map, new UserRowMapper());
+        List<User> users = jdbcTemplate.query(FIND_USER_BY_EMAIL, map, new UserRowMapper());
         logger.info("user fetched with {} count", users.size());
         return !CollectionUtils.isEmpty(users) ? users.get(0) : null;
+    }
+
+    @Override
+    public void update(User user) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(USER_ID, user.getUserId());
+        map.addValue(EMAIL, user.getEmail());
+        map.addValue(PASSWORD, user.getPassword());
+        map.addValue(FULL_NAME, user.getFullName());
+        map.addValue(UPDATED_DATE_TIME, LocalDateTime.now());
+        String query = UPDATE_USER;
+        if(StringUtils.hasText(query) && !ObjectUtils.isEmpty(user)) {
+            int inscnt = jdbcTemplate.update(query, map);
+            logger.info("update to t_usr completed with {} count", inscnt);
+        } else {
+            logger.info("update to t_usr completed with empty count");
+        }
+    }
+
+    @Override
+    public User findByUserId(String userId) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(USER_ID, userId);
+        List<User> users = jdbcTemplate.query(FIND_USER_BY_USER_ID, map, new UserRowMapper());
+        logger.info("user with id {} fetched with {} count", userId, users.size());
+        return !CollectionUtils.isEmpty(users) ? users.get(0) : null;
+    }
+
+    @Override
+    public List<User> findAll() {
+        List<User> users = jdbcTemplate.query(FIND_ALL_USERS, new UserRowMapper());
+        logger.info("users fetched with {} count", users.size());
+        return !CollectionUtils.isEmpty(users) ? users : null;
+    }
+
+    @Override
+    public int delete(String userId) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(USER_ID, userId);
+        int dltcnt = jdbcTemplate.update(DELETE_USER, map);
+        logger.info("user deleted with {} count", dltcnt);
+        return dltcnt;
     }
 
     private MapSqlParameterSource getSqlParameterSource(User user) {
@@ -55,8 +96,7 @@ public class UserRepositoryImpl implements UserRepository {
         map.put(USER_ID, user.getUserId());
         map.put(EMAIL, user.getEmail());
         map.put(PASSWORD, user.getPassword());
-        map.put(FIRST_NAME, user.getFirstName());
-        map.put(LAST_NAME, user.getLastName());
+        map.put(FULL_NAME, user.getFullName());
         map.put(ROLE, user.getRole());
         map.put(CREATED_DATE_TIME, LocalDateTime.now());
         map.put(UPDATED_DATE_TIME, LocalDateTime.now());

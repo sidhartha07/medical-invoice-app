@@ -13,8 +13,7 @@ public class UserRowMapper implements RowMapper<User> {
                 .userId(rs.getString("a_usr_id"))
                 .email(rs.getString("a_em"))
                 .password(rs.getString("a_pwd"))
-                .firstName(rs.getString("a_fst_nm"))
-                .lastName(rs.getString("a_lst_nm"))
+                .fullName(rs.getString("a_nm"))
                 .role(rs.getString("a_role"))
                 .build();
     }
