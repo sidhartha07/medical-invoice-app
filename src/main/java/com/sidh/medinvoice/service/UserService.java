@@ -2,9 +2,16 @@ package com.sidh.medinvoice.service;
 
 import com.sidh.medinvoice.dto.request.LoginRequestDto;
 import com.sidh.medinvoice.dto.request.RegisterRequestDto;
-import com.sidh.medinvoice.dto.response.LoginResponseDto;
+import com.sidh.medinvoice.dto.request.UpdateUserRequestDto;
+import com.sidh.medinvoice.dto.response.UserResponseDto;
+
+import java.util.List;
 
 public interface UserService {
     void createUser(RegisterRequestDto register);
-    LoginResponseDto userLogin(LoginRequestDto request);
+    UserResponseDto userLogin(LoginRequestDto request);
+    UserResponseDto userUpdate(UpdateUserRequestDto request, String userId);
+    UserResponseDto findUserById(String userId);
+    List<UserResponseDto> findAllUsers();
+    void deleteUser(String userId);
 }

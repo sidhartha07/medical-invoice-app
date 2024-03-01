@@ -1,4 +1,4 @@
-package com.sidh.medinvoice.dto.response;
+package com.sidh.medinvoice.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,9 +11,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class LoginResponseDto implements Serializable {
-    private String userId;
+public class UpdateUserRequestDto implements Serializable {
     private String email;
+    private String password;
     private String fullName;
-    private String role;
 }

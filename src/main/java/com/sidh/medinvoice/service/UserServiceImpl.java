@@ -2,7 +2,8 @@ package com.sidh.medinvoice.service;
 
 import com.sidh.medinvoice.dto.request.LoginRequestDto;
 import com.sidh.medinvoice.dto.request.RegisterRequestDto;
-import com.sidh.medinvoice.dto.response.LoginResponseDto;
+import com.sidh.medinvoice.dto.request.UpdateUserRequestDto;
+import com.sidh.medinvoice.dto.response.UserResponseDto;
 import com.sidh.medinvoice.dto.response.MessageDto;
 import com.sidh.medinvoice.dto.response.ResponseMsgDto;
 import com.sidh.medinvoice.exception.InvalidRequestException;
@@ -14,7 +15,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,6 +30,7 @@ public class UserServiceImpl implements UserService {
     private PasswordEncoder passwordEncoder;
 
     @Override
+    @Transactional
     public void createUser(RegisterRequestDto register) {
         String encryptedPwd = passwordEncoder.encode(register.getPassword());
         String role = register.getRole();
@@ -57,7 +63,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public LoginResponseDto userLogin(LoginRequestDto request) {
+    public UserResponseDto userLogin(LoginRequestDto request) {
         User user = userRepository.login(request.getEmail());
         if (ObjectUtils.isEmpty(user) || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             MessageDto messageDto = MessageDto.builder()
@@ -70,7 +76,152 @@ public class UserServiceImpl implements UserService {
                     .build();
             throw new InvalidRequestException(HttpStatus.UNAUTHORIZED, responseMsgDto);
         }
-        return LoginResponseDto.builder()
+        return mapUserToRespDto(user);
+    }
+
+    @Override
+    @Transactional
+    public UserResponseDto userUpdate(UpdateUserRequestDto request, String userId) {
+        User user = User.builder().build();
+        if (StringUtils.hasText(userId)) {
+            user = userRepository.findByUserId(userId);
+        } else {
+            MessageDto messageDto = MessageDto.builder()
+                    .code("10001")
+                    .message("Please provide mandatory fields")
+                    .build();
+            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
+                    .exception("User update Failed with error")
+                    .messages(List.of(messageDto))
+                    .build();
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, responseMsgDto);
+        }
+        if (ObjectUtils.isEmpty(user)) {
+            MessageDto messageDto = MessageDto.builder()
+                    .code("10005")
+                    .message("No user found with this Id")
+                    .build();
+            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
+                    .exception("User update Failed with error")
+                    .messages(List.of(messageDto))
+                    .build();
+            throw new InvalidRequestException(HttpStatus.NOT_FOUND, responseMsgDto);
+        }
+        if (StringUtils.hasText(request.getEmail())) {
+            user.setEmail(request.getEmail());
+        }
+        if (StringUtils.hasText(request.getPassword())) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+        if (StringUtils.hasText(request.getFullName())) {
+            user.setFullName(request.getFullName());
+        }
+        try {
+            userRepository.update(user);
+        } catch (RuntimeException ex) {
+            MessageDto messageDto = MessageDto.builder()
+                    .code("10004")
+                    .message("Internal server error")
+                    .build();
+            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
+                    .exception("User update Failed with error")
+                    .messages(List.of(messageDto))
+                    .build();
+            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, responseMsgDto);
+        }
+        return mapUserToRespDto(user);
+    }
+
+    @Override
+    public UserResponseDto findUserById(String userId) {
+        User user = User.builder().build();
+        try {
+            user = userRepository.findByUserId(userId);
+        } catch (RuntimeException ex) {
+            MessageDto messageDto = MessageDto.builder()
+                    .code("10004")
+                    .message("Internal server error")
+                    .build();
+            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
+                    .exception("User fetch Failed with error")
+                    .messages(List.of(messageDto))
+                    .build();
+            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, responseMsgDto);
+        }
+        if (ObjectUtils.isEmpty(user)) {
+            MessageDto messageDto = MessageDto.builder()
+                    .code("10005")
+                    .message("No user found with this Id")
+                    .build();
+            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
+                    .exception("User fetch Failed with error")
+                    .messages(List.of(messageDto))
+                    .build();
+            throw new InvalidRequestException(HttpStatus.NOT_FOUND, responseMsgDto);
+        }
+        return mapUserToRespDto(user);
+    }
+
+    @Override
+    public List<UserResponseDto> findAllUsers() {
+        List<User> users = new ArrayList<>();
+        try {
+            users = userRepository.findAll();
+            if (CollectionUtils.isEmpty(users)) {
+                throw new RuntimeException();
+            }
+        } catch (RuntimeException ex) {
+            MessageDto messageDto = MessageDto.builder()
+                    .code("10005")
+                    .message("No users found")
+                    .build();
+            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
+                    .exception("Fetch all users Failed with error")
+                    .messages(List.of(messageDto))
+                    .build();
+            throw new InvalidRequestException(HttpStatus.NOT_FOUND, responseMsgDto);
+        }
+        List<UserResponseDto> userResponseDtos = new ArrayList<>();
+        for (User user : users) {
+            UserResponseDto userResponseDto = mapUserToRespDto(user);
+            userResponseDtos.add(userResponseDto);
+        }
+        return userResponseDtos;
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(String userId) {
+        int dltcnt = 0;
+        try {
+            dltcnt = userRepository.delete(userId);
+
+        } catch (RuntimeException ex) {
+            MessageDto messageDto = MessageDto.builder()
+                    .code("10004")
+                    .message("Internal server error")
+                    .build();
+            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
+                    .exception("User delete Failed with error")
+                    .messages(List.of(messageDto))
+                    .build();
+            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, responseMsgDto);
+        }
+        if (dltcnt <= 0) {
+            MessageDto messageDto = MessageDto.builder()
+                    .code("10005")
+                    .message("No user found with this Id")
+                    .build();
+            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
+                    .exception("User delete Failed with error")
+                    .messages(List.of(messageDto))
+                    .build();
+            throw new InvalidRequestException(HttpStatus.NOT_FOUND, responseMsgDto);
+        }
+    }
+
+    private static UserResponseDto mapUserToRespDto(User user) {
+        return UserResponseDto.builder()
                 .userId(user.getUserId())
                 .email(user.getEmail())
                 .fullName(user.getFullName())
