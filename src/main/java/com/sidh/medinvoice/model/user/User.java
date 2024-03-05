@@ -1,4 +1,4 @@
-package com.sidh.medinvoice.model;
+package com.sidh.medinvoice.model.user;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,4 +20,5 @@ public class User implements Serializable {
     private String role;
     private LocalDateTime createdDateTime;
     private LocalDateTime updatedDateTime;
+    private String currentLocation;
 }

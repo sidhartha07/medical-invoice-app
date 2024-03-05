@@ -1,4 +1,4 @@
-package com.sidh.medinvoice.model;
+package com.sidh.medinvoice.model.user;
 
 public enum Role {
     USER, ADMIN, REP

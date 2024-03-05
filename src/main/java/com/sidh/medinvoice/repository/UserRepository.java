@@ -1,6 +1,6 @@
 package com.sidh.medinvoice.repository;
 
-import com.sidh.medinvoice.model.User;
+import com.sidh.medinvoice.model.user.User;
 
 import java.util.List;
 

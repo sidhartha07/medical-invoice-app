@@ -1,6 +1,6 @@
 package com.sidh.medinvoice.mapper.user;
 
-import com.sidh.medinvoice.model.User;
+import com.sidh.medinvoice.model.user.User;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -15,6 +15,7 @@ public class UserRowMapper implements RowMapper<User> {
                 .password(rs.getString("a_pwd"))
                 .fullName(rs.getString("a_nm"))
                 .role(rs.getString("a_role"))
+                .currentLocation(rs.getString("a_cur_loc"))
                 .build();
     }
 }
