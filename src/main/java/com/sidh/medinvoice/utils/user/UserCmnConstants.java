@@ -11,4 +11,6 @@ public class UserCmnConstants {
     public static final String ROLE = "role";
     public static final String CREATED_DATE_TIME = "createdDateTime";
     public static final String UPDATED_DATE_TIME = "updatedDateTime";
+    public static final String CURRENT_LOCATION = "currentLocation";
+
 }

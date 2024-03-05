@@ -3,6 +3,7 @@ package com.sidh.medinvoice.controller;
 import com.sidh.medinvoice.dto.request.LoginRequestDto;
 import com.sidh.medinvoice.dto.request.RegisterRequestDto;
 import com.sidh.medinvoice.dto.request.UpdateUserRequestDto;
+import com.sidh.medinvoice.dto.response.ResponseDto;
 import com.sidh.medinvoice.dto.response.UserResponseDto;
 import com.sidh.medinvoice.dto.response.MessageDto;
 import com.sidh.medinvoice.dto.response.ResponseMsgDto;
@@ -44,7 +45,7 @@ public class UserController {
                               "exception": "Registration Failed with error",
                               "messages": [
                                 {
-                                  "code": "10001",
+                                  "code": "400",
                                   "message": "Please provide mandatory fields"
                                 }
                               ]
@@ -57,7 +58,7 @@ public class UserController {
                                "exception": "Registration Failed with error",
                                "messages": [
                                  {
-                                   "code": "10003",
+                                   "code": "500",
                                    "message": "Email Id already exists, please try with another"
                                  }
                                ]
@@ -70,7 +71,8 @@ public class UserController {
                       "email": "user@email.com",
                       "password": "userpassword",
                       "fullName": "fullname",
-                      "role": "userrole"
+                      "role": "userrole",
+                      "currentLocation": "location"
                     }
                     """))}) @RequestBody RegisterRequestDto request) {
         if (!StringUtils.hasText(request.getEmail()) ||
@@ -78,7 +80,7 @@ public class UserController {
                 !StringUtils.hasText(request.getFullName()) ||
                 !StringUtils.hasText(request.getRole())) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10001")
+                    .code("400")
                     .message("Please provide mandatory fields")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -99,10 +101,19 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "Successful login",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
-                      "userId": "c49c5cd9-9ca4-4a1e-91f4-b19b39ad8283",
-                      "email": "user@email.com",
-                      "fullName": "fullname",
-                      "role": "USER"
+                        "status": {
+                          "code": "200",
+                          "message": "User logged in successfully"
+                        },
+                        "data": [
+                          {
+                            "userId": "2c8cf670-fc9e-4356-8049-90406a02b02b",
+                            "email": "demo@email.com",
+                            "fullName": "Demo User",
+                            "role": "USER",
+                            "currentLocation": ""
+                          }
+                        ]
                     }
                     """)))
     @ApiResponse(responseCode = "400", description = "Login failed with bad request",
@@ -112,7 +123,7 @@ public class UserController {
                                "exception": "Login Failed with error",
                                "messages": [
                                  {
-                                   "code": "10001",
+                                   "code": "400",
                                    "message": "Please provide mandatory fields"
                                  }
                                ]
@@ -125,7 +136,7 @@ public class UserController {
                                 "exception": "Login Failed with error",
                                 "messages": [
                                   {
-                                    "code": "10002",
+                                    "code": "401",
                                     "message": "Invalid email or password"
                                   }
                                 ]
@@ -142,7 +153,7 @@ public class UserController {
         if (!StringUtils.hasText(request.getEmail()) ||
                 !StringUtils.hasText(request.getPassword())) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10001")
+                    .code("400")
                     .message("Please provide mandatory fields")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -151,7 +162,15 @@ public class UserController {
                     .build();
             throw new InvalidRequestException(HttpStatus.BAD_REQUEST, responseMsgDto);
         }
-        UserResponseDto response = userService.userLogin(request);
+        MessageDto status = MessageDto.builder()
+                .code("200")
+                .message("User logged in successfully")
+                .build();
+        UserResponseDto data = userService.userLogin(request);
+        ResponseDto response = ResponseDto.builder()
+                .status(status)
+                .data(List.of(data))
+                .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -159,10 +178,19 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "User profile updated successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
-                      "userId": "c49c5cd9-9ca4-4a1e-91f4-b19b39ad8283",
-                      "email": "user@email.com",
-                      "fullName": "fullname",
-                      "role": "USER"
+                      "status": {
+                        "code": "200",
+                        "message": "User details updated successfully"
+                      },
+                      "data": [
+                        {
+                          "userId": "string",
+                          "email": "string",
+                          "fullName": "string",
+                          "role": "string",
+                          "currentLocation": "string"
+                        }
+                      ]
                     }
                     """)))
     @ApiResponse(responseCode = "400", description = "Update failed with bad request",
@@ -172,7 +200,7 @@ public class UserController {
                                "exception": "User update Failed with error",
                                "messages": [
                                  {
-                                   "code": "10001",
+                                   "code": "400",
                                    "message": "Please provide mandatory fields"
                                  }
                                ]
@@ -185,7 +213,7 @@ public class UserController {
                               "exception": "User update Failed with error",
                               "messages": [
                                 {
-                                  "code": "10005",
+                                  "code": "404",
                                   "message": "No user found with this Id"
                                 }
                               ]
@@ -198,8 +226,8 @@ public class UserController {
                                "exception": "User update Failed with error",
                                "messages": [
                                  {
-                                   "code": "10004",
-                                   "message": "Update failed with Internal server error"
+                                   "code": "500",
+                                   "message": "New Email already exists"
                                  }
                                ]
                              }
@@ -213,7 +241,15 @@ public class UserController {
                       "fullName": "fullname"
                     }
                     """))}) @RequestBody UpdateUserRequestDto request, @PathVariable String userId) {
-        UserResponseDto response = userService.userUpdate(request, userId);
+        MessageDto status = MessageDto.builder()
+                .code("200")
+                .message("User details updated successfully")
+                .build();
+        UserResponseDto data = userService.userUpdate(request, userId);
+        ResponseDto response = ResponseDto.builder()
+                .status(status)
+                .data(List.of(data))
+                .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -221,10 +257,19 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "User fetched successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
-                      "userId": "c49c5cd9-9ca4-4a1e-91f4-b19b39ad8283",
-                      "email": "user@email.com",
-                      "fullName": "fullname",
-                      "role": "USER"
+                       "status": {
+                         "code": "200",
+                         "message": "User fetched successfully"
+                       },
+                       "data": [
+                         {
+                           "userId": "string",
+                           "email": "string",
+                           "fullName": "string",
+                           "role": "string",
+                           "currentLocation": "string"
+                         }
+                       ]
                     }
                     """)))
     @ApiResponse(responseCode = "400", description = "User fetch failed with bad request",
@@ -234,7 +279,7 @@ public class UserController {
                                "exception": "User fetch Failed with error",
                                "messages": [
                                  {
-                                   "code": "10001",
+                                   "code": "400",
                                    "message": "Please provide mandatory fields"
                                  }
                                ]
@@ -247,7 +292,7 @@ public class UserController {
                               "exception": "User fetch Failed with error",
                               "messages": [
                                 {
-                                  "code": "10005",
+                                  "code": "404",
                                   "message": "No user found with this Id"
                                 }
                               ]
@@ -260,7 +305,7 @@ public class UserController {
                                 "exception": "User fetch Failed with error",
                                 "messages": [
                                   {
-                                    "code": "10004",
+                                    "code": "500",
                                     "message": "Internal server error"
                                   }
                                 ]
@@ -269,7 +314,7 @@ public class UserController {
     public ResponseEntity<Object> findUserById(@PathVariable String userId) {
         if (!StringUtils.hasText(userId)) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10001")
+                    .code("400")
                     .message("Please provide mandatory fields")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -278,27 +323,43 @@ public class UserController {
                     .build();
             throw new InvalidRequestException(HttpStatus.BAD_REQUEST, responseMsgDto);
         }
-        UserResponseDto response = userService.findUserById(userId);
+        MessageDto status = MessageDto.builder()
+                .code("200")
+                .message("User fetched successfully")
+                .build();
+        UserResponseDto data = userService.findUserById(userId);
+        ResponseDto response = ResponseDto.builder()
+                .status(status)
+                .data(List.of(data))
+                .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "200", description = "Users fetched successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
-                    [
-                       {
-                         "userId": "8841ff07-9d11-44fb-b883-ecd3763f88ab",
-                         "email": "newuser@email.com",
-                         "fullName": "New User",
-                         "role": "USER"
-                       },
-                       {
-                         "userId": "c49c5cd9-9ca4-4a1e-91f4-b19b39ad8283",
-                         "email": "adminuser@email.com",
-                         "fullName": "admin user",
-                         "role": "ADMIN"
-                       }
-                     ]
+                    {
+                        "status": {
+                          "code": "200",
+                          "message": "Users fetched successfully"
+                        },
+                        "data": [
+                          {
+                            "userId": "string",
+                            "email": "string",
+                            "fullName": "string",
+                            "role": "string",
+                            "currentLocation": "string"
+                          },
+                          {
+                            "userId": "string",
+                            "email": "string",
+                            "fullName": "string",
+                            "role": "string",
+                            "currentLocation": "string"
+                          }
+                       ]
+                    }
                     """)))
     @ApiResponse(responseCode = "404", description = "Fetch users failed with not found error",
             content = @Content(mediaType = "application/json",
@@ -307,14 +368,22 @@ public class UserController {
                               "exception": "Fetch users Failed with error",
                               "messages": [
                                 {
-                                  "code": "10005",
+                                  "code": "404",
                                   "message": "No users found"
                                 }
                               ]
                             }
                             """)))
     public ResponseEntity<Object> findAllUser() {
-        List<UserResponseDto> response = userService.findAllUsers();
+        MessageDto status = MessageDto.builder()
+                .code("200")
+                .message("Users fetched successfully")
+                .build();
+        List<UserResponseDto> datas = userService.findAllUsers();
+        ResponseDto response = ResponseDto.builder()
+                .status(status)
+                .data(datas)
+                .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -333,7 +402,7 @@ public class UserController {
                                "exception": "User delete Failed with error",
                                "messages": [
                                  {
-                                   "code": "10001",
+                                   "code": "400",
                                    "message": "Please provide mandatory fields"
                                  }
                                ]
@@ -346,7 +415,7 @@ public class UserController {
                               "exception": "User delete Failed with error",
                               "messages": [
                                 {
-                                  "code": "10005",
+                                  "code": "404",
                                   "message": "No user found with this Id"
                                 }
                               ]
@@ -359,7 +428,7 @@ public class UserController {
                                 "exception": "User delete Failed with error",
                                 "messages": [
                                   {
-                                    "code": "10004",
+                                    "code": "500",
                                     "message": "Internal server error"
                                   }
                                 ]
@@ -368,7 +437,7 @@ public class UserController {
     public ResponseEntity<Object> deleteUser(@PathVariable String userId) {
         if (!StringUtils.hasText(userId)) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10001")
+                    .code("400")
                     .message("Please provide mandatory fields")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()

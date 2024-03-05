@@ -1,7 +1,7 @@
 package com.sidh.medinvoice.repository;
 
 import com.sidh.medinvoice.mapper.user.UserRowMapper;
-import com.sidh.medinvoice.model.User;
+import com.sidh.medinvoice.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,6 +100,7 @@ public class UserRepositoryImpl implements UserRepository {
         map.put(ROLE, user.getRole());
         map.put(CREATED_DATE_TIME, LocalDateTime.now());
         map.put(UPDATED_DATE_TIME, LocalDateTime.now());
+        map.put(CURRENT_LOCATION, user.getCurrentLocation());
         return new MapSqlParameterSource(map);
     }
 }

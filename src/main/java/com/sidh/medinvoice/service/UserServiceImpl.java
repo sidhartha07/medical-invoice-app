@@ -7,8 +7,8 @@ import com.sidh.medinvoice.dto.response.UserResponseDto;
 import com.sidh.medinvoice.dto.response.MessageDto;
 import com.sidh.medinvoice.dto.response.ResponseMsgDto;
 import com.sidh.medinvoice.exception.InvalidRequestException;
-import com.sidh.medinvoice.model.Role;
-import com.sidh.medinvoice.model.User;
+import com.sidh.medinvoice.model.user.Role;
+import com.sidh.medinvoice.model.user.User;
 import com.sidh.medinvoice.repository.UserRepository;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,12 +46,13 @@ public class UserServiceImpl implements UserService {
                 .password(encryptedPwd)
                 .fullName(register.getFullName())
                 .role(role)
+                .currentLocation(register.getCurrentLocation())
                 .build();
         try {
             userRepository.create(user);
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10003")
+                    .code("500")
                     .message("Email Id already exists, please try with another")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -67,7 +68,7 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.login(request.getEmail());
         if (ObjectUtils.isEmpty(user) || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10002")
+                    .code("401")
                     .message("Invalid email or password")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -87,7 +88,7 @@ public class UserServiceImpl implements UserService {
             user = userRepository.findByUserId(userId);
         } else {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10001")
+                    .code("400")
                     .message("Please provide mandatory fields")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -98,7 +99,7 @@ public class UserServiceImpl implements UserService {
         }
         if (ObjectUtils.isEmpty(user)) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10005")
+                    .code("404")
                     .message("No user found with this Id")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -120,8 +121,8 @@ public class UserServiceImpl implements UserService {
             userRepository.update(user);
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10004")
-                    .message("Internal server error")
+                    .code("500")
+                    .message("New Email already exists")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
                     .exception("User update Failed with error")
@@ -139,7 +140,7 @@ public class UserServiceImpl implements UserService {
             user = userRepository.findByUserId(userId);
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10004")
+                    .code("500")
                     .message("Internal server error")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -150,7 +151,7 @@ public class UserServiceImpl implements UserService {
         }
         if (ObjectUtils.isEmpty(user)) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10005")
+                    .code("404")
                     .message("No user found with this Id")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -172,7 +173,7 @@ public class UserServiceImpl implements UserService {
             }
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10005")
+                    .code("404")
                     .message("No users found")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -198,7 +199,7 @@ public class UserServiceImpl implements UserService {
 
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10004")
+                    .code("500")
                     .message("Internal server error")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -209,7 +210,7 @@ public class UserServiceImpl implements UserService {
         }
         if (dltcnt <= 0) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("10005")
+                    .code("404")
                     .message("No user found with this Id")
                     .build();
             ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
@@ -226,6 +227,7 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .role(user.getRole())
+                .currentLocation(user.getCurrentLocation())
                 .build();
     }
 }
