@@ -1,4 +1,4 @@
-package com.sidh.medinvoice.service;
+package com.sidh.medinvoice.service.user;
 
 import com.sidh.medinvoice.dto.request.LoginRequestDto;
 import com.sidh.medinvoice.dto.request.RegisterRequestDto;

@@ -1,5 +1,6 @@
 package com.sidh.medinvoice.exception;
 
+import com.sidh.medinvoice.dto.response.MessageDto;
 import com.sidh.medinvoice.dto.response.ResponseMsgDto;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -10,41 +11,41 @@ public class InvalidRequestException extends RuntimeException {
 
     private final HttpStatus status;
     private final transient Object error;
-    private final ResponseMsgDto responseMsgDto;
+    private final MessageDto messageDto;
 
     public InvalidRequestException(String message) {
         super(message);
         status = HttpStatus.BAD_REQUEST;
         this.error = message;
-        this.responseMsgDto = null;
+        this.messageDto = null;
     }
 
     public InvalidRequestException(HttpStatus status, String message) {
         super(message);
         this.status = status;
         this.error = message;
-        this.responseMsgDto = null;
+        this.messageDto = null;
     }
 
-    public InvalidRequestException(HttpStatus status, Exception e, ResponseMsgDto responseMsgDto) {
+    public InvalidRequestException(HttpStatus status, Exception e, MessageDto messageDto) {
         super(e);
         this.status = status;
         this.error = e;
-        this.responseMsgDto = responseMsgDto;
+        this.messageDto = messageDto;
     }
 
     public InvalidRequestException(HttpStatus status, Error e, ResponseMsgDto responseMsgDto) {
         super(responseMsgDto.getException());
         this.status = status;
         this.error = e;
-        this.responseMsgDto = null;
+        this.messageDto = null;
     }
 
-    public InvalidRequestException(HttpStatus status, ResponseMsgDto responseMsgDto) {
-        super(responseMsgDto.getException());
+    public InvalidRequestException(HttpStatus status, MessageDto messageDto) {
+        super(messageDto.getMessage());
         this.status = status;
-        this.error = responseMsgDto;
-        this.responseMsgDto = responseMsgDto;
+        this.error = messageDto;
+        this.messageDto = messageDto;
 
     }
 }

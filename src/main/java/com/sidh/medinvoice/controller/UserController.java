@@ -3,12 +3,11 @@ package com.sidh.medinvoice.controller;
 import com.sidh.medinvoice.dto.request.LoginRequestDto;
 import com.sidh.medinvoice.dto.request.RegisterRequestDto;
 import com.sidh.medinvoice.dto.request.UpdateUserRequestDto;
+import com.sidh.medinvoice.dto.response.MessageDto;
 import com.sidh.medinvoice.dto.response.ResponseDto;
 import com.sidh.medinvoice.dto.response.UserResponseDto;
-import com.sidh.medinvoice.dto.response.MessageDto;
-import com.sidh.medinvoice.dto.response.ResponseMsgDto;
 import com.sidh.medinvoice.exception.InvalidRequestException;
-import com.sidh.medinvoice.service.UserService;
+import com.sidh.medinvoice.service.user.UserService;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -34,7 +33,7 @@ public class UserController {
     @ApiResponse(responseCode = "201", description = "Successful registration",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
-                      "code": "201",
+                      "status": "200",
                       "message": "User registration success"
                     }
                     """)))
@@ -42,27 +41,17 @@ public class UserController {
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                              "exception": "Registration Failed with error",
-                              "messages": [
-                                {
-                                  "code": "400",
-                                  "message": "Please provide mandatory fields"
-                                }
-                              ]
+                                "status": "400",
+                                "message": "Please provide mandatory fields"
                             }
                             """)))
     @ApiResponse(responseCode = "500", description = "Registration failed with Internal Server Error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                               "exception": "Registration Failed with error",
-                               "messages": [
-                                 {
-                                   "code": "500",
-                                   "message": "Email Id already exists, please try with another"
-                                 }
-                               ]
-                             }
+                                "status": "500",
+                                "message": "Email Id already exists, please try with another"
+                            }
                             """)))
     public ResponseEntity<Object> register(@io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
             description = "Provide user details for registration",
@@ -80,31 +69,25 @@ public class UserController {
                 !StringUtils.hasText(request.getFullName()) ||
                 !StringUtils.hasText(request.getRole())) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("400")
+                    .status("400")
                     .message("Please provide mandatory fields")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("Registration Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
         }
         userService.createUser(request);
         MessageDto messageDto = MessageDto.builder()
-                .code("201")
+                .status("200")
                 .message("User registration success")
                 .build();
-        return ResponseEntity.status(HttpStatus.CREATED).body(messageDto);
+        return ResponseEntity.status(HttpStatus.OK).body(messageDto);
     }
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     @ApiResponse(responseCode = "200", description = "Successful login",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
-                        "status": {
-                          "code": "200",
-                          "message": "User logged in successfully"
-                        },
+                        "status": "200",
+                        "message": "User logged in successfully",
                         "data": [
                           {
                             "userId": "2c8cf670-fc9e-4356-8049-90406a02b02b",
@@ -120,27 +103,17 @@ public class UserController {
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                               "exception": "Login Failed with error",
-                               "messages": [
-                                 {
-                                   "code": "400",
-                                   "message": "Please provide mandatory fields"
-                                 }
-                               ]
-                             }
+                                "status": "400",
+                                "message": "Please provide mandatory fields"
+                            }
                             """)))
     @ApiResponse(responseCode = "401", description = "Login failed with authentication error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                                "exception": "Login Failed with error",
-                                "messages": [
-                                  {
-                                    "code": "401",
-                                    "message": "Invalid email or password"
-                                  }
-                                ]
-                              }
+                                "status": "401",
+                                "message": "Invalid email or password"
+                            }
                             """)))
     public ResponseEntity<Object> login(@io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
             description = "Provide email and password to login",
@@ -153,22 +126,15 @@ public class UserController {
         if (!StringUtils.hasText(request.getEmail()) ||
                 !StringUtils.hasText(request.getPassword())) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("400")
+                    .status("400")
                     .message("Please provide mandatory fields")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("Login Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
         }
-        MessageDto status = MessageDto.builder()
-                .code("200")
-                .message("User logged in successfully")
-                .build();
         UserResponseDto data = userService.userLogin(request);
         ResponseDto response = ResponseDto.builder()
-                .status(status)
+                .status("200")
+                .message("User logged in successfully")
                 .data(List.of(data))
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -178,10 +144,8 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "User profile updated successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
-                      "status": {
-                        "code": "200",
-                        "message": "User details updated successfully"
-                      },
+                      "status": "200",
+                      "message": "User details updated successfully",
                       "data": [
                         {
                           "userId": "string",
@@ -197,40 +161,25 @@ public class UserController {
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                               "exception": "User update Failed with error",
-                               "messages": [
-                                 {
-                                   "code": "400",
-                                   "message": "Please provide mandatory fields"
-                                 }
-                               ]
-                             }
+                                "status": "400",
+                                "message": "Please provide mandatory fields"
+                            }
                             """)))
     @ApiResponse(responseCode = "404", description = "Update failed with not found error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                              "exception": "User update Failed with error",
-                              "messages": [
-                                {
-                                  "code": "404",
-                                  "message": "No user found with this Id"
-                                }
-                              ]
+                                "status": "404",
+                                "message": "No user found with this Id"
                             }
                             """)))
     @ApiResponse(responseCode = "500", description = "Update failed with Internal Server Error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                               "exception": "User update Failed with error",
-                               "messages": [
-                                 {
-                                   "code": "500",
-                                   "message": "New Email already exists"
-                                 }
-                               ]
-                             }
+                                "status": "500",
+                                "message": "New Email already exists"
+                            }
                             """)))
     public ResponseEntity<Object> update(@io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
             description = "Provide user details to update. Only give the fields which needs to be updated.",
@@ -241,13 +190,10 @@ public class UserController {
                       "fullName": "fullname"
                     }
                     """))}) @RequestBody UpdateUserRequestDto request, @PathVariable String userId) {
-        MessageDto status = MessageDto.builder()
-                .code("200")
-                .message("User details updated successfully")
-                .build();
         UserResponseDto data = userService.userUpdate(request, userId);
         ResponseDto response = ResponseDto.builder()
-                .status(status)
+                .status("200")
+                .message("User details updated successfully")
                 .data(List.of(data))
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -257,10 +203,8 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "User fetched successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
-                       "status": {
-                         "code": "200",
-                         "message": "User fetched successfully"
-                       },
+                       "status": "200",
+                       "message": "User fetched successfully",
                        "data": [
                          {
                            "userId": "string",
@@ -276,60 +220,38 @@ public class UserController {
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                               "exception": "User fetch Failed with error",
-                               "messages": [
-                                 {
-                                   "code": "400",
-                                   "message": "Please provide mandatory fields"
-                                 }
-                               ]
-                             }
+                                "status": "400",
+                                "message": "Please provide mandatory fields"
+                            }
                             """)))
     @ApiResponse(responseCode = "404", description = "User fetch failed with not found error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                              "exception": "User fetch Failed with error",
-                              "messages": [
-                                {
-                                  "code": "404",
-                                  "message": "No user found with this Id"
-                                }
-                              ]
+                                "status": "404",
+                                "message": "No user found with this Id"
                             }
                             """)))
     @ApiResponse(responseCode = "500", description = "User fetch failed with Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                                "exception": "User fetch Failed with error",
-                                "messages": [
-                                  {
-                                    "code": "500",
-                                    "message": "Internal server error"
-                                  }
-                                ]
-                              }
+                                "status": "500",
+                                "message": "Internal server error"
+                            }
                             """)))
     public ResponseEntity<Object> findUserById(@PathVariable String userId) {
         if (!StringUtils.hasText(userId)) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("400")
+                    .status("400")
                     .message("Please provide mandatory fields")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("User fetch Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
         }
-        MessageDto status = MessageDto.builder()
-                .code("200")
-                .message("User fetched successfully")
-                .build();
         UserResponseDto data = userService.findUserById(userId);
         ResponseDto response = ResponseDto.builder()
-                .status(status)
+                .status("200")
+                .message("User fetched successfully")
                 .data(List.of(data))
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -339,10 +261,8 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "Users fetched successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
-                        "status": {
-                          "code": "200",
-                          "message": "Users fetched successfully"
-                        },
+                        "status": "200",
+                        "message": "Users fetched successfully",
                         "data": [
                           {
                             "userId": "string",
@@ -365,23 +285,15 @@ public class UserController {
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                              "exception": "Fetch users Failed with error",
-                              "messages": [
-                                {
-                                  "code": "404",
-                                  "message": "No users found"
-                                }
-                              ]
+                                "status": "404",
+                                "message": "No users found"
                             }
                             """)))
     public ResponseEntity<Object> findAllUser() {
-        MessageDto status = MessageDto.builder()
-                .code("200")
-                .message("Users fetched successfully")
-                .build();
         List<UserResponseDto> datas = userService.findAllUsers();
         ResponseDto response = ResponseDto.builder()
-                .status(status)
+                .status("200")
+                .message("Users fetched successfully")
                 .data(datas)
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -391,7 +303,7 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "User deleted successfully",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
-                       "code": "200",
+                       "status": "200",
                        "message": "User deleted successfully"
                     }
                     """)))
@@ -399,56 +311,37 @@ public class UserController {
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                               "exception": "User delete Failed with error",
-                               "messages": [
-                                 {
-                                   "code": "400",
-                                   "message": "Please provide mandatory fields"
-                                 }
-                               ]
-                             }
+                                "status": "400",
+                                "message": "Please provide mandatory fields"
+                            }
                             """)))
     @ApiResponse(responseCode = "404", description = "User delete failed with not found error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                              "exception": "User delete Failed with error",
-                              "messages": [
-                                {
-                                  "code": "404",
-                                  "message": "No user found with this Id"
-                                }
-                              ]
+                                "status": "404",
+                                "message": "No user found with this Id"
                             }
                             """)))
     @ApiResponse(responseCode = "500", description = "User delete failed with Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(example = """
                             {
-                                "exception": "User delete Failed with error",
-                                "messages": [
-                                  {
-                                    "code": "500",
-                                    "message": "Internal server error"
-                                  }
-                                ]
-                              }
+                                "status": "500",
+                                "message": "Internal server error"
+                            }
                             """)))
     public ResponseEntity<Object> deleteUser(@PathVariable String userId) {
         if (!StringUtils.hasText(userId)) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("400")
+                    .status("400")
                     .message("Please provide mandatory fields")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("User delete Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
         }
         userService.deleteUser(userId);
         MessageDto messageDto = MessageDto.builder()
-                .code("200")
+                .status("200")
                 .message("User deleted successfully")
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(messageDto);
@@ -457,10 +350,9 @@ public class UserController {
     @ExceptionHandler(value = {InvalidRequestException.class})
     @ResponseBody
     public ResponseEntity<Object> handleUserExceptions(InvalidRequestException ex) {
-        ResponseMsgDto responseMsgDto = ex.getResponseMsgDto();
         logger.warn("User operation failed: Error - {}", ex.getError());
         return ResponseEntity.status(ex.getStatus().value())
                 .header("produces", MediaType.APPLICATION_JSON_VALUE)
-                .body(responseMsgDto);
+                .body(ex.getMessageDto());
     }
 }

@@ -1,4 +1,4 @@
-package com.sidh.medinvoice.service;
+package com.sidh.medinvoice.service.user;
 
 import com.sidh.medinvoice.dto.request.LoginRequestDto;
 import com.sidh.medinvoice.dto.request.RegisterRequestDto;
@@ -9,7 +9,7 @@ import com.sidh.medinvoice.dto.response.ResponseMsgDto;
 import com.sidh.medinvoice.exception.InvalidRequestException;
 import com.sidh.medinvoice.model.user.Role;
 import com.sidh.medinvoice.model.user.User;
-import com.sidh.medinvoice.repository.UserRepository;
+import com.sidh.medinvoice.repository.user.UserRepository;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -52,14 +52,10 @@ public class UserServiceImpl implements UserService {
             userRepository.create(user);
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("500")
+                    .status("500")
                     .message("Email Id already exists, please try with another")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("Registration Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, messageDto);
         }
     }
 
@@ -68,14 +64,10 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.login(request.getEmail());
         if (ObjectUtils.isEmpty(user) || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("401")
+                    .status("401")
                     .message("Invalid email or password")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("Login Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.UNAUTHORIZED, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.UNAUTHORIZED, messageDto);
         }
         return mapUserToRespDto(user);
     }
@@ -88,25 +80,17 @@ public class UserServiceImpl implements UserService {
             user = userRepository.findByUserId(userId);
         } else {
             MessageDto messageDto = MessageDto.builder()
-                    .code("400")
+                    .status("400")
                     .message("Please provide mandatory fields")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("User update Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
         }
         if (ObjectUtils.isEmpty(user)) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("404")
+                    .status("404")
                     .message("No user found with this Id")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("User update Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.NOT_FOUND, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.NOT_FOUND, messageDto);
         }
         if (StringUtils.hasText(request.getEmail())) {
             user.setEmail(request.getEmail());
@@ -121,14 +105,10 @@ public class UserServiceImpl implements UserService {
             userRepository.update(user);
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("500")
+                    .status("500")
                     .message("New Email already exists")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("User update Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, messageDto);
         }
         return mapUserToRespDto(user);
     }
@@ -140,25 +120,17 @@ public class UserServiceImpl implements UserService {
             user = userRepository.findByUserId(userId);
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("500")
+                    .status("500")
                     .message("Internal server error")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("User fetch Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, messageDto);
         }
         if (ObjectUtils.isEmpty(user)) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("404")
+                    .status("404")
                     .message("No user found with this Id")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("User fetch Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.NOT_FOUND, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.NOT_FOUND, messageDto);
         }
         return mapUserToRespDto(user);
     }
@@ -173,14 +145,10 @@ public class UserServiceImpl implements UserService {
             }
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("404")
+                    .status("404")
                     .message("No users found")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("Fetch all users Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.NOT_FOUND, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.NOT_FOUND, messageDto);
         }
         List<UserResponseDto> userResponseDtos = new ArrayList<>();
         for (User user : users) {
@@ -199,25 +167,17 @@ public class UserServiceImpl implements UserService {
 
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("500")
+                    .status("500")
                     .message("Internal server error")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("User delete Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, messageDto);
         }
         if (dltcnt <= 0) {
             MessageDto messageDto = MessageDto.builder()
-                    .code("404")
+                    .status("404")
                     .message("No user found with this Id")
                     .build();
-            ResponseMsgDto responseMsgDto = ResponseMsgDto.builder()
-                    .exception("User delete Failed with error")
-                    .messages(List.of(messageDto))
-                    .build();
-            throw new InvalidRequestException(HttpStatus.NOT_FOUND, responseMsgDto);
+            throw new InvalidRequestException(HttpStatus.NOT_FOUND, messageDto);
         }
     }
 
