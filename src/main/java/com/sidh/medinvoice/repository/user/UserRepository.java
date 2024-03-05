@@ -1,4 +1,4 @@
-package com.sidh.medinvoice.repository;
+package com.sidh.medinvoice.repository.user;
 
 import com.sidh.medinvoice.model.user.User;
 

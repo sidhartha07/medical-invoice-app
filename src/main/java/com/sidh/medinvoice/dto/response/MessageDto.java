@@ -13,14 +13,14 @@ import java.io.Serializable;
 @Builder
 public class MessageDto implements Serializable {
 
-    private String code;
+    private String status;
     private String message;
 
     public MessageDto() {
     }
 
-    public MessageDto(final String code, final String message) {
-        this.code = code;
+    public MessageDto(final String status, final String message) {
+        this.status = status;
         this.message = message;
     }
 }
