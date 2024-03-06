@@ -11,4 +11,5 @@ public interface UserRepository {
     User findByUserId(String userId);
     List<User> findAll();
     int delete(String userId);
+    int updateCurrentLocation(String userId, String currentLocation);
 }

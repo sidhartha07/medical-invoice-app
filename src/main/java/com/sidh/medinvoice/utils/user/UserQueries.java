@@ -30,4 +30,9 @@ public class UserQueries {
             DELETE FROM t_usr
             WHERE a_usr_id=:userId;
             """;
+    public static final String UPDATE_CURRENT_LOCATION = """
+            UPDATE t_usr
+            SET a_cur_loc = :currentLocation, a_upd_dtm = :updatedDateTime
+            WHERE a_usr_id = :userId;
+            """;
 }
