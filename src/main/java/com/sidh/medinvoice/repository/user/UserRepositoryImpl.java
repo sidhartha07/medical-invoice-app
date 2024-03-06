@@ -91,6 +91,16 @@ public class UserRepositoryImpl implements UserRepository {
         return dltcnt;
     }
 
+    public int updateCurrentLocation(String userId, String currentLocation) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(USER_ID, userId);
+        map.addValue(CURRENT_LOCATION, currentLocation);
+        map.addValue(UPDATED_DATE_TIME, LocalDateTime.now());
+        int updcnt = jdbcTemplate.update(UPDATE_CURRENT_LOCATION, map);
+        logger.info("current location for user with userId {} updated with {} count", userId, updcnt);
+        return updcnt;
+    }
+
     private MapSqlParameterSource getSqlParameterSource(User user) {
         Map<String, Object> map = new HashMap<>();
         map.put(USER_ID, user.getUserId());

@@ -30,7 +30,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping(value = "/register", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    @ApiResponse(responseCode = "201", description = "Successful registration",
+    @ApiResponse(responseCode = "200", description = "Successful registration",
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
                       "status": "200",
