@@ -1,8 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/med-inv
-    username: postgres
-    password: root
+#    url: jdbc:postgresql://localhost:5432/med-inv
+#    username: postgres
+#    password: root
+    url: jdbc:postgresql://${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximumPoolSize: 20
@@ -32,6 +35,6 @@ logging:
     root: INFO
 
 cloudinary:
-  cloud_name: your_cloud_name
-  api_key: your_api_key
-  api_secret: your_secret_key
+  cloud_name: ${CLOUDINARY_CLOUD_NAME}
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET}
