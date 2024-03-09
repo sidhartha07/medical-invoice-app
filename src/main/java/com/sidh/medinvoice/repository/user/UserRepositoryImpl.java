@@ -110,7 +110,8 @@ public class UserRepositoryImpl implements UserRepository {
         map.put(ROLE, user.getRole());
         map.put(CREATED_DATE_TIME, LocalDateTime.now());
         map.put(UPDATED_DATE_TIME, LocalDateTime.now());
-        map.put(CURRENT_LOCATION, user.getCurrentLocation());
+        map.put(LATITUDE, user.getLatitude());
+        map.put(LONGITUDE, user.getLongitude());
         return new MapSqlParameterSource(map);
     }
 }

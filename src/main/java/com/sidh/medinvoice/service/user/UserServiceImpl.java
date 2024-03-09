@@ -34,6 +34,9 @@ public class UserServiceImpl implements UserService {
     public void createUser(RegisterRequestDto register) {
         String encryptedPwd = passwordEncoder.encode(register.getPassword());
         String role = register.getRole();
+        String[] geoValues = register.getCurrentLocation().split(",");
+        Double latitude = Double.valueOf(geoValues[0]);
+        Double longitude = Double.valueOf(geoValues[1]);
         if (role.equalsIgnoreCase("admin")) {
             role = Role.ADMIN.toString();
         } else if (role.equalsIgnoreCase("rep")) {
@@ -46,7 +49,8 @@ public class UserServiceImpl implements UserService {
                 .password(encryptedPwd)
                 .fullName(register.getFullName())
                 .role(role)
-                .currentLocation(register.getCurrentLocation())
+                .latitude(latitude)
+                .longitude(longitude)
                 .build();
         try {
             userRepository.create(user);
@@ -187,7 +191,6 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .role(user.getRole())
-                .currentLocation(user.getCurrentLocation())
                 .build();
     }
 }

@@ -18,4 +18,6 @@ public class Prescription implements Serializable {
     private String prescriptionImgUrl;
     private LocalDateTime createdDateTime;
     private LocalDateTime updatedDateTime;
+    private Double latitude;
+    private Double longitude;
 }

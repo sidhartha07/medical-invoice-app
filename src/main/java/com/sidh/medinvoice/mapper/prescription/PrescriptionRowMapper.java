@@ -13,6 +13,8 @@ public class PrescriptionRowMapper implements RowMapper<Prescription> {
                 .prescriptionId(rs.getString("a_prs_id"))
                 .userId(rs.getString("a_usr_id"))
                 .prescriptionImgUrl(rs.getString("a_prs_img_url"))
+                .latitude(rs.getDouble("a_lat"))
+                .longitude(rs.getDouble("a_long"))
                 .build();
     }
 }

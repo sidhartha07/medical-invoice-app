@@ -26,8 +26,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     @Override
     @Transactional
-    public void insert(String userId, String currentLocation, MultipartFile image) {
-        if (!StringUtils.hasText(userId) || image.isEmpty() || !StringUtils.hasText(currentLocation)) {
+    public String insert(String userId, String currentLocation, MultipartFile image) {
+        if (!StringUtils.hasText(userId) || image == null || !StringUtils.hasText(currentLocation)) {
             MessageDto messageDto = mapToMessageDto("400", "Invalid request, Please provide mandatory fields");
             throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
         }
@@ -36,11 +36,9 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             MessageDto messageDto = mapToMessageDto("404", "User not found for this Id");
             throw new InvalidRequestException(HttpStatus.NOT_FOUND, messageDto);
         }
-        int cnt = userRepository.updateCurrentLocation(userId, currentLocation);
-        if (cnt != 1) {
-            MessageDto messageDto = mapToMessageDto("500", "Unable to update current location");
-            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
-        }
+        String[] geoValues = currentLocation.split(",");
+        Double latitude = Double.valueOf(geoValues[0]);
+        Double longitude = Double.valueOf(geoValues[1]);
         String imgUrl = "";
         try {
             imgUrl = cloudinaryService.uploadImage(image);
@@ -50,12 +48,13 @@ public class PrescriptionServiceImpl implements PrescriptionService {
         }
         if (StringUtils.hasText(imgUrl)) {
             try {
-                prescriptionRepository.insert(userId, imgUrl);
+                prescriptionRepository.insert(userId, imgUrl, latitude, longitude);
             } catch (RuntimeException ex) {
                 MessageDto messageDto = mapToMessageDto("500", "Internal Server Error");
                 throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, messageDto);
             }
         }
+        return imgUrl;
     }
 
     private static MessageDto mapToMessageDto(String status, String message) {
