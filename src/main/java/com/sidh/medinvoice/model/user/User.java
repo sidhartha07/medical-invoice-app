@@ -20,5 +20,6 @@ public class User implements Serializable {
     private String role;
     private LocalDateTime createdDateTime;
     private LocalDateTime updatedDateTime;
-    private String currentLocation;
+    private Double latitude;
+    private Double longitude;
 }

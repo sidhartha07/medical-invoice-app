@@ -1,6 +1,6 @@
 package com.sidh.medinvoice.controller;
 
-import com.sidh.medinvoice.dto.response.MessageDto;
+import com.sidh.medinvoice.dto.response.PresUploadResp;
 import com.sidh.medinvoice.exception.InvalidRequestException;
 import com.sidh.medinvoice.service.prescription.PrescriptionService;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,7 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -28,7 +27,8 @@ public class PrescriptionController {
             content = @Content(mediaType = "application/json", schema = @Schema(example = """
                     {
                       "status": "200",
-                      "message": "Prescription saved successfully"
+                      "message": "Prescription saved successfully",
+                      "imageUrl": "string"
                     }
                     """)))
     @ApiResponse(responseCode = "400", description = "Mandatory fields are missing",
@@ -84,10 +84,11 @@ public class PrescriptionController {
             @RequestPart(value = "userId") String userId,
             @RequestPart(value = "currentLocation") String currentLocation,
             @RequestPart(value = "image") MultipartFile image){
-        prescriptionService.insert(userId, currentLocation, image);
-        MessageDto response = MessageDto.builder()
+        String imageUrl = prescriptionService.insert(userId, currentLocation, image);
+        PresUploadResp response = PresUploadResp.builder()
                 .status("200")
                 .message("Prescription saved successfully")
+                .imageUrl(imageUrl)
                 .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
