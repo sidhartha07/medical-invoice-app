@@ -6,11 +6,11 @@ public class UserQueries {
     }
 
     public static final String INSERT_USER = """
-            INSERT INTO t_usr (a_usr_id, a_em, a_pwd, a_nm, a_role, a_cr_dtm, a_upd_dtm, a_cur_loc)
-            VALUES (:userId, :email, :password, :fullName, :role, :createdDateTime, :updatedDateTime, :currentLocation);
+            INSERT INTO t_usr (a_usr_id, a_em, a_pwd, a_nm, a_role, a_cr_dtm, a_upd_dtm, a_lat, a_long)
+            VALUES (:userId, :email, :password, :fullName, :role, :createdDateTime, :updatedDateTime, :currentLocation, :latitude, :longitude);
             """;
     public static final String FIND_USER_BY_EMAIL = """
-            SELECT a_usr_id, a_em, a_pwd, a_nm, a_role, a_cur_loc
+            SELECT a_usr_id, a_em, a_pwd, a_nm, a_role, a_lat, a_long
             FROM t_usr WHERE a_em=:email;
             """;
     public static final String UPDATE_USER = """
@@ -19,11 +19,11 @@ public class UserQueries {
             WHERE a_usr_id=:userId;
             """;
     public static final String FIND_USER_BY_USER_ID = """
-            SELECT a_usr_id, a_em, a_pwd, a_nm, a_role, a_cur_loc
+            SELECT a_usr_id, a_em, a_pwd, a_nm, a_role, a_lat, a_long
             FROM t_usr WHERE a_usr_id=:userId;
             """;
     public static final String FIND_ALL_USERS = """
-            SELECT a_usr_id, a_em, a_pwd, a_nm, a_role, a_cur_loc
+            SELECT a_usr_id, a_em, a_pwd, a_nm, a_role, a_lat, a_long
             FROM t_usr;
             """;
     public static final String DELETE_USER = """

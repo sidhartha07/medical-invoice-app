@@ -19,11 +19,14 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
   servlet:
     multipart:
       max-file-size: 5MB
       max-request-size: 10MB
+  security:
+    user:
+      password: root
 
 logging:
   level:

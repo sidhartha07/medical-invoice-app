@@ -19,12 +19,14 @@ public class PrescriptionRepositoryImpl implements PrescriptionRepository {
     private NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
-    public void insert(String userId, String imageUrl) {
+    public void insert(String userId, String imageUrl, Double latitude, Double longitude) {
         MapSqlParameterSource map = new MapSqlParameterSource();
         map.addValue(USER_ID, userId);
         map.addValue(PRESCRIPTION_IMG_URL, imageUrl);
         map.addValue(CREATED_DATE_TIME, LocalDateTime.now());
         map.addValue(UPDATED_DATE_TIME, LocalDateTime.now());
+        map.addValue(LATITUDE, latitude);
+        map.addValue(LONGITUDE, longitude);
         int inscnt = jdbcTemplate.update(INSERT_PRESCRIPTION, map);
         logger.info("insert to t_prs completed with {} count", inscnt);
     }

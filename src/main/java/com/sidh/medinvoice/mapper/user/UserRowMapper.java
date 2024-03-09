@@ -15,7 +15,8 @@ public class UserRowMapper implements RowMapper<User> {
                 .password(rs.getString("a_pwd"))
                 .fullName(rs.getString("a_nm"))
                 .role(rs.getString("a_role"))
-                .currentLocation(rs.getString("a_cur_loc"))
+                .latitude(rs.getDouble("a_lat"))
+                .longitude(rs.getDouble("a_long"))
                 .build();
     }
 }
