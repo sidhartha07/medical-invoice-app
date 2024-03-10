@@ -12,4 +12,5 @@ public interface UserRepository {
     List<User> findAll();
     int delete(String userId);
     int updateCurrentLocation(String userId, String currentLocation);
+    List<User> findRepsNearUser(Double latitude, Double longitude);
 }

@@ -35,4 +35,11 @@ public class UserQueries {
             SET a_cur_loc = :currentLocation, a_upd_dtm = :updatedDateTime
             WHERE a_usr_id = :userId;
             """;
+    public static final String FIND_REPS_NEAR_USER = """
+            SELECT a_usr_id, a_em, a_pwd, a_nm, a_role, a_lat, a_long
+            FROM t_usr
+            WHERE a_role = 'REP'
+            ORDER BY POWER(a_lat - :latitude, 2) + POWER(a_long - :longitude, 2)
+            LIMIT 3;
+            """;
 }
