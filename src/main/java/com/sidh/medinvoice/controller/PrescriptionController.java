@@ -1,6 +1,8 @@
 package com.sidh.medinvoice.controller;
 
+import com.sidh.medinvoice.dto.response.MessageDto;
 import com.sidh.medinvoice.dto.response.PresUploadResp;
+import com.sidh.medinvoice.dto.response.UserPresRespDto;
 import com.sidh.medinvoice.exception.InvalidRequestException;
 import com.sidh.medinvoice.service.prescription.PrescriptionService;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -90,6 +93,19 @@ public class PrescriptionController {
                 .message("Prescription saved successfully")
                 .imageUrl(imageUrl)
                 .build();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping(value = "/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> findByUserId(@PathVariable String userId) {
+        if (!StringUtils.hasText(userId)) {
+            MessageDto messageDto = MessageDto.builder()
+                    .status("400")
+                    .message("Invalid request. Please provide the mandatory fields")
+                    .build();
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
+        }
+        UserPresRespDto response = prescriptionService.findPrescriptionsByUserId(userId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

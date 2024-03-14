@@ -101,6 +101,15 @@ public class UserRepositoryImpl implements UserRepository {
         return updcnt;
     }
 
+    @Override
+    public List<User> findRepsNearUser(Double latitude, Double longitude) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(LATITUDE, latitude);
+        map.addValue(LONGITUDE, longitude);
+        List<User> result = jdbcTemplate.query(FIND_REPS_NEAR_USER, map, new UserRowMapper());
+        return !CollectionUtils.isEmpty(result) ? result : null;
+    }
+
     private MapSqlParameterSource getSqlParameterSource(User user) {
         Map<String, Object> map = new HashMap<>();
         map.put(USER_ID, user.getUserId());
