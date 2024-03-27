@@ -97,7 +97,12 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             MessageDto messageDto = mapToMessageDto("404", "User not found for this Id");
             throw new InvalidRequestException(HttpStatus.NOT_FOUND, messageDto);
         }
-        List<Prescription> prescriptions = prescriptionRepository.getPrescriptionByUserId(userId);
+        List<Prescription> prescriptions = new ArrayList<>();
+        if (user.getRole().equals("REP")) {
+            prescriptions = prescriptionRepository.getPrescriptionByMedicalRepId(userId);
+        } else {
+            prescriptions = prescriptionRepository.getPrescriptionByUserId(userId);
+        }
         List<PrescriptionDto> prescriptionDtos = new ArrayList<>();
         if (!CollectionUtils.isEmpty(prescriptions)) {
             for (Prescription prescription : prescriptions) {

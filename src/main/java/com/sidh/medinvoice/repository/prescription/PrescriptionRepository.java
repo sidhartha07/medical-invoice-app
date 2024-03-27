@@ -8,6 +8,7 @@ import java.util.List;
 public interface PrescriptionRepository {
     String insert(String userId, String imageUrl, Double latitude, Double longitude);
     List<Prescription> getPrescriptionByUserId(String userId);
+    List<Prescription> getPrescriptionByMedicalRepId(String medicalRepId);
     int saveRepsForUser(List<UserRep> reps);
 
 }
