@@ -34,9 +34,21 @@ public class UserServiceImpl implements UserService {
     public void createUser(RegisterRequestDto register) {
         String encryptedPwd = passwordEncoder.encode(register.getPassword());
         String role = register.getRole();
-        String[] geoValues = register.getCurrentLocation().split(",");
-        Double latitude = Double.valueOf(geoValues[0]);
-        Double longitude = Double.valueOf(geoValues[1]);
+        double latitude = 0;
+        double longitude = 0;
+        if (register.getCurrentLocation() != null) {
+            try {
+                String[] geoValues = register.getCurrentLocation().split(",");
+                latitude = Double.parseDouble(geoValues[0]);
+                longitude = Double.parseDouble(geoValues[1]);
+            } catch (RuntimeException ex) {
+                MessageDto messageDto = MessageDto.builder()
+                        .status("500")
+                        .message("Invalid input for location")
+                        .build();
+                throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, messageDto);
+            }
+        }
         if (role.equalsIgnoreCase("admin")) {
             role = Role.ADMIN.toString();
         } else if (role.equalsIgnoreCase("rep")) {
