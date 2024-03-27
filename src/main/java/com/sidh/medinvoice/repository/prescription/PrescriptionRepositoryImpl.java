@@ -54,6 +54,15 @@ public class PrescriptionRepositoryImpl implements PrescriptionRepository {
     }
 
     @Override
+    public List<Prescription> getPrescriptionByMedicalRepId(String medicalRepId) {
+        MapSqlParameterSource map = new MapSqlParameterSource();
+        map.addValue(MEDICAL_REP_ID, medicalRepId);
+        List<Prescription> result = jdbcTemplate.query(FIND_PRESCRIPTION_BY_REP_ID, map, new PrescriptionRowMapper());
+        logger.info("fetched prescriptions for userId {} with {} count", medicalRepId, result.size());
+        return !CollectionUtils.isEmpty(result) ? result : null;
+    }
+
+    @Override
     public int saveRepsForUser(List<UserRep> reps) {
         int[] count = jdbcTemplate.batchUpdate(INSERT_MED_REPS_FOR_USER, getSqlParameterSource(reps));
         if (!ArrayUtils.isEmpty(count)) {

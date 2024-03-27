@@ -16,4 +16,8 @@ public class PrescriptionQueries {
             INSERT INTO t_usr_rep (a_usr_id, a_prs_id, a_rep_id)
             VALUES (:userId, :prescriptionId, :medicalRepId);
             """;
+    public static final String FIND_PRESCRIPTION_BY_REP_ID = """
+            SELECT p.a_prs_id, p.a_usr_id, p.a_prs_img_url, p.a_lat, p.a_long FROM t_prs p INNER JOIN t_usr_rep r
+            ON p.a_prs_id = r.a_prs_id WHERE r.a_rep_id = :medicalRepId;
+            """;
 }
