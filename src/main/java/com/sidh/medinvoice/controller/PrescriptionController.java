@@ -1,5 +1,6 @@
 package com.sidh.medinvoice.controller;
 
+import com.sidh.medinvoice.dto.request.InvoiceRequestDto;
 import com.sidh.medinvoice.dto.response.MessageDto;
 import com.sidh.medinvoice.dto.response.PresUploadResp;
 import com.sidh.medinvoice.dto.response.UserPresRespDto;
@@ -86,7 +87,7 @@ public class PrescriptionController {
     public ResponseEntity<Object> insert(
             @RequestPart(value = "userId") String userId,
             @RequestPart(value = "currentLocation") String currentLocation,
-            @RequestPart(value = "image") MultipartFile image){
+            @RequestPart(value = "image") MultipartFile image) {
         String imageUrl = prescriptionService.insert(userId, currentLocation, image);
         PresUploadResp response = PresUploadResp.builder()
                 .status("200")
@@ -107,6 +108,25 @@ public class PrescriptionController {
         }
         UserPresRespDto response = prescriptionService.findPrescriptionsByUserId(userId);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @PostMapping(value = "/invoice/save", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Object> saveInvoice(@RequestBody InvoiceRequestDto request) {
+        if (!StringUtils.hasText(request.getUserId()) ||
+                !StringUtils.hasText(request.getPrescriptionId()) ||
+                !StringUtils.hasText(request.getInvoiceJson())) {
+            MessageDto messageDto = MessageDto.builder()
+                    .status("400")
+                    .message("Invalid request. Please provide the mandatory fields")
+                    .build();
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
+        }
+        prescriptionService.saveInvoice(request);
+        MessageDto messageDto = MessageDto.builder()
+                .status("200")
+                .message("Invoice saved successfully")
+                .build();
+        return ResponseEntity.status(HttpStatus.OK).body(messageDto);
     }
 
     @ExceptionHandler(value = {InvalidRequestException.class})

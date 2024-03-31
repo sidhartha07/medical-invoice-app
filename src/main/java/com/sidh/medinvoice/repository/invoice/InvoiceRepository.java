@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface InvoiceRepository {
     List<Invoice> getInvoiceByPrescriptionId(String prescriptionId);
+
+    void saveInvoice(Invoice invoice);
 }
