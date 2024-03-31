@@ -1,5 +1,6 @@
 package com.sidh.medinvoice.service.prescription;
 
+import com.sidh.medinvoice.dto.request.InvoiceRequestDto;
 import com.sidh.medinvoice.dto.response.InvoiceDto;
 import com.sidh.medinvoice.dto.response.MessageDto;
 import com.sidh.medinvoice.dto.response.PrescriptionDto;
@@ -121,6 +122,23 @@ public class PrescriptionServiceImpl implements PrescriptionService {
                 .message("Prescriptions fetched successfully")
                 .prescriptions(prescriptionDtos)
                 .build();
+    }
+
+    @Override
+    public void saveInvoice(InvoiceRequestDto request) {
+        String invoiceNumber = String.valueOf(10000000 + (int) (Math.random() * 90000000));
+        Invoice invoice = Invoice.builder()
+                .userId(request.getUserId())
+                .prescriptionId(request.getPrescriptionId())
+                .invoiceNo(invoiceNumber)
+                .invoiceJson(request.getInvoiceJson())
+                .build();
+        try {
+            invoiceRepository.saveInvoice(invoice);
+        } catch (RuntimeException ex) {
+            MessageDto messageDto = mapToMessageDto("500", "Internal Server Error");
+            throw new InvalidRequestException(HttpStatus.NOT_FOUND, messageDto);
+        }
     }
 
     private List<InvoiceDto> mapToInvoiceDtos(List<Invoice> invoices) {
