@@ -13,7 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-@RestController("/api/v1/medicines")
+@RestController
+@RequestMapping("/api/v1/medicines")
 public class MedicineController {
     private static final Logger logger = LoggerFactory.getLogger(MedicineController.class);
     @Autowired
