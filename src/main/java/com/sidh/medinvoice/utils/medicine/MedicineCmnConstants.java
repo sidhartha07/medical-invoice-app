@@ -12,4 +12,7 @@ public class MedicineCmnConstants {
     public static final String MRP = "mrp";
     public static final String SELLING_PRICE = "sellingPrice";
     public static final String QUANTITY = "quantity";
+    public static final String CREATED_DATE_TIME = "createdDateTime";
+    public static final String UPDATED_DATE_TIME = "updatedDateTime";
+
 }

@@ -125,6 +125,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     }
 
     @Override
+    @Transactional
     public void saveInvoice(InvoiceRequestDto request) {
         String invoiceNumber = String.valueOf(10000000 + (int) (Math.random() * 90000000));
         Invoice invoice = Invoice.builder()
