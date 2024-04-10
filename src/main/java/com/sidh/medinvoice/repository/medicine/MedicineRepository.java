@@ -6,4 +6,7 @@ import java.util.List;
 
 public interface MedicineRepository {
     List<Medicine> findMedicinesByUserId(String userId);
+    void addMedicine(Medicine medicine);
+    Medicine findMedicineByMedicineId(String medicineId);
+    void updateMedicine(Medicine medicine);
 }
