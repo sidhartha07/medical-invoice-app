@@ -203,6 +203,7 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .role(user.getRole())
+                .currentLocation(user.getLatitude() + "," + user.getLongitude())
                 .build();
     }
 }
