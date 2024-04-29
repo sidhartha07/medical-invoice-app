@@ -35,7 +35,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
     @Override
     public void saveInvoice(Invoice invoice) {
         int inscnt = jdbcTemplate.update(SAVE_INVOICE, getParams(invoice));
-        logger.info("Invoice inserted with {} count", inscnt);
+        logger.info("Merge to t_invc completed with {} count", inscnt);
     }
 
     private MapSqlParameterSource getParams(Invoice invoice) {
