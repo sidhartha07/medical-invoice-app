@@ -14,5 +14,7 @@ public class UserCmnConstants {
     public static final String CURRENT_LOCATION = "currentLocation";
     public static final String LATITUDE = "latitude";
     public static final String LONGITUDE = "longitude";
+    public static final String PHONE_NO = "phoneNo";
+    public static final String SHOP_NAME = "shopName";
 
 }

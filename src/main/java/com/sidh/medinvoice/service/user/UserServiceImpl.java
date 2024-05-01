@@ -36,6 +36,13 @@ public class UserServiceImpl implements UserService {
         String role = register.getRole();
         double latitude = 0;
         double longitude = 0;
+        if (register.getPhoneNo().length() != 10 || !register.getPhoneNo().matches("^\\d{10}$")) {
+            MessageDto messageDto = MessageDto.builder()
+                    .status("400")
+                    .message("Invalid phone number")
+                    .build();
+            throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
+        }
         if (register.getCurrentLocation() != null) {
             try {
                 String[] geoValues = register.getCurrentLocation().split(",");
@@ -43,16 +50,23 @@ public class UserServiceImpl implements UserService {
                 longitude = Double.parseDouble(geoValues[1]);
             } catch (RuntimeException ex) {
                 MessageDto messageDto = MessageDto.builder()
-                        .status("500")
+                        .status("400")
                         .message("Invalid input for location")
                         .build();
-                throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, messageDto);
+                throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
             }
         }
         if (role.equalsIgnoreCase("admin")) {
             role = Role.ADMIN.toString();
         } else if (role.equalsIgnoreCase("rep")) {
             role = Role.REP.toString();
+            if (!StringUtils.hasText(register.getShopName())) {
+                MessageDto messageDto = MessageDto.builder()
+                        .status("400")
+                        .message("Shop Name is mandatory for Medical Rep")
+                        .build();
+                throw new InvalidRequestException(HttpStatus.BAD_REQUEST, messageDto);
+            }
         } else {
             role = Role.USER.toString();
         }
@@ -61,6 +75,8 @@ public class UserServiceImpl implements UserService {
                 .password(encryptedPwd)
                 .fullName(register.getFullName())
                 .role(role)
+                .phoneNo(register.getPhoneNo())
+                .shopName(register.getShopName())
                 .latitude(latitude)
                 .longitude(longitude)
                 .build();
@@ -69,7 +85,7 @@ public class UserServiceImpl implements UserService {
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
                     .status("500")
-                    .message("Email Id already exists, please try with another")
+                    .message("Email or Phone already exists, please try with another")
                     .build();
             throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, messageDto);
         }
@@ -117,12 +133,18 @@ public class UserServiceImpl implements UserService {
         if (StringUtils.hasText(request.getFullName())) {
             user.setFullName(request.getFullName());
         }
+        if (StringUtils.hasText(request.getPhoneNo())) {
+            user.setPhoneNo(request.getPhoneNo());
+        }
+        if (StringUtils.hasText(request.getShopName())) {
+            user.setShopName(request.getShopName());
+        }
         try {
             userRepository.update(user);
         } catch (RuntimeException ex) {
             MessageDto messageDto = MessageDto.builder()
                     .status("500")
-                    .message("New Email already exists")
+                    .message("New Email or Phone already exists")
                     .build();
             throw new InvalidRequestException(HttpStatus.INTERNAL_SERVER_ERROR, messageDto);
         }
@@ -203,6 +225,8 @@ public class UserServiceImpl implements UserService {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .role(user.getRole())
+                .phoneNo(user.getPhoneNo())
+                .shopName(user.getShopName())
                 .currentLocation(user.getLatitude() + "," + user.getLongitude())
                 .build();
     }

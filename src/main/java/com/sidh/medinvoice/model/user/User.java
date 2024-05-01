@@ -18,6 +18,8 @@ public class User implements Serializable {
     private String password;
     private String fullName;
     private String role;
+    private String phoneNo;
+    private String shopName;
     private LocalDateTime createdDateTime;
     private LocalDateTime updatedDateTime;
     private Double latitude;
