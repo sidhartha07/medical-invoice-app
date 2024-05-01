@@ -17,6 +17,8 @@ public class UserRowMapper implements RowMapper<User> {
                 .role(rs.getString("a_role"))
                 .latitude(rs.getDouble("a_lat"))
                 .longitude(rs.getDouble("a_long"))
+                .phoneNo(rs.getString("a_phn"))
+                .shopName(rs.getString("a_shp_nm"))
                 .build();
     }
 }

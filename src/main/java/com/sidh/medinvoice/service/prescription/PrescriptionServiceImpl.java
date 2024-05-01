@@ -145,11 +145,26 @@ public class PrescriptionServiceImpl implements PrescriptionService {
     private List<InvoiceDto> mapToInvoiceDtos(List<Invoice> invoices) {
         List<InvoiceDto> invoiceDtos = new ArrayList<>();
         for (Invoice invoice : invoices) {
+            User rep = userRepository.findByUserId(invoice.getUserId());
+            if (rep == null) {
+                MessageDto messageDto = mapToMessageDto("404", "Medical Rep not found");
+                throw new InvalidRequestException(HttpStatus.NOT_FOUND, messageDto);
+            }
             InvoiceDto invoiceDto = InvoiceDto.builder()
                     .invoiceId(invoice.getInvoiceId())
                     .invoiceNo(invoice.getInvoiceNo())
                     .invoiceJson(invoice.getInvoiceJson())
                     .build();
+            if (StringUtils.hasText(rep.getPhoneNo())) {
+                invoiceDto.setShopPhoneNo(rep.getPhoneNo());
+            } else {
+                invoiceDto.setShopPhoneNo(rep.getEmail());
+            }
+            if (StringUtils.hasText(rep.getShopName())) {
+                invoiceDto.setShopName(rep.getShopName());
+            } else {
+                invoiceDto.setShopName(rep.getFullName());
+            }
             invoiceDtos.add(invoiceDto);
         }
         return invoiceDtos;

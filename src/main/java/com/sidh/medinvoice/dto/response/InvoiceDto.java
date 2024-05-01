@@ -12,6 +12,8 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Builder
 public class InvoiceDto implements Serializable {
+    private String shopName;
+    private String shopPhoneNo;
     private String invoiceId;
     private String invoiceNo;
     private String invoiceJson;

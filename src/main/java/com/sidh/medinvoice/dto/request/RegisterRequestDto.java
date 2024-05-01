@@ -15,6 +15,8 @@ public class RegisterRequestDto implements Serializable {
     private String email;
     private String password;
     private String fullName;
+    private String phoneNo;
     private String role;
     private String currentLocation;
+    private String shopName;
 }

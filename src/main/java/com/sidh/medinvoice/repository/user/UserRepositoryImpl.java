@@ -32,7 +32,7 @@ public class UserRepositoryImpl implements UserRepository {
         user.setUserId(UUID.randomUUID().toString());
         MapSqlParameterSource map = getSqlParameterSource(user);
         String query = INSERT_USER;
-        if(StringUtils.hasText(query) && !ObjectUtils.isEmpty(user)) {
+        if (StringUtils.hasText(query) && !ObjectUtils.isEmpty(user)) {
             int inscnt = jdbcTemplate.update(query, map);
             logger.info("insert to t_usr completed with {} count", inscnt);
         } else {
@@ -41,10 +41,17 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User login(String email) {
+    public User login(String input) {
         MapSqlParameterSource map = new MapSqlParameterSource();
-        map.addValue(EMAIL, email);
-        List<User> users = jdbcTemplate.query(FIND_USER_BY_EMAIL, map, new UserRowMapper());
+        String query;
+        if (input.contains("@")) {
+            map.addValue(EMAIL, input);
+            query = FIND_USER_BY_EMAIL;
+        } else {
+            map.addValue(PHONE_NO, input);
+            query = FIND_USER_BY_PHONE_NO;
+        }
+        List<User> users = jdbcTemplate.query(query, map, new UserRowMapper());
         logger.info("user fetched with {} count", users.size());
         return !CollectionUtils.isEmpty(users) ? users.get(0) : null;
     }
@@ -56,9 +63,11 @@ public class UserRepositoryImpl implements UserRepository {
         map.addValue(EMAIL, user.getEmail());
         map.addValue(PASSWORD, user.getPassword());
         map.addValue(FULL_NAME, user.getFullName());
+        map.addValue(PHONE_NO, user.getPhoneNo());
+        map.addValue(SHOP_NAME, user.getShopName());
         map.addValue(UPDATED_DATE_TIME, LocalDateTime.now());
         String query = UPDATE_USER;
-        if(StringUtils.hasText(query) && !ObjectUtils.isEmpty(user)) {
+        if (StringUtils.hasText(query) && !ObjectUtils.isEmpty(user)) {
             int inscnt = jdbcTemplate.update(query, map);
             logger.info("update to t_usr completed with {} count", inscnt);
         } else {
@@ -116,6 +125,8 @@ public class UserRepositoryImpl implements UserRepository {
         map.put(EMAIL, user.getEmail());
         map.put(PASSWORD, user.getPassword());
         map.put(FULL_NAME, user.getFullName());
+        map.put(PHONE_NO, user.getPhoneNo());
+        map.put(SHOP_NAME, user.getShopName());
         map.put(ROLE, user.getRole());
         map.put(CREATED_DATE_TIME, LocalDateTime.now());
         map.put(UPDATED_DATE_TIME, LocalDateTime.now());

@@ -60,6 +60,8 @@ public class UserController {
                       "email": "user@email.com",
                       "password": "userpassword",
                       "fullName": "fullname",
+                      "phoneNo": "phone",
+                      "shopName": "shop",
                       "role": "userrole",
                       "currentLocation": "location"
                     }
@@ -67,7 +69,8 @@ public class UserController {
         if (!StringUtils.hasText(request.getEmail()) ||
                 !StringUtils.hasText(request.getPassword()) ||
                 !StringUtils.hasText(request.getFullName()) ||
-                !StringUtils.hasText(request.getRole())) {
+                !StringUtils.hasText(request.getRole()) ||
+                !StringUtils.hasText(request.getPhoneNo())) {
             MessageDto messageDto = MessageDto.builder()
                     .status("400")
                     .message("Please provide mandatory fields")
@@ -93,6 +96,8 @@ public class UserController {
                             "userId": "2c8cf670-fc9e-4356-8049-90406a02b02b",
                             "email": "demo@email.com",
                             "fullName": "Demo User",
+                            "phoneNo": "9999999999",
+                            "shopName": "shop",
                             "role": "USER",
                             "currentLocation": ""
                           }
