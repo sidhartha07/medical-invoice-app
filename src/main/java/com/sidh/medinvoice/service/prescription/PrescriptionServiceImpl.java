@@ -27,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PrescriptionServiceImpl implements PrescriptionService {
@@ -105,18 +106,17 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             prescriptions = prescriptionRepository.getPrescriptionByUserId(userId);
         }
         List<PrescriptionDto> prescriptionDtos = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(prescriptions)) {
-            for (Prescription prescription : prescriptions) {
-                PrescriptionDto prescriptionDto = PrescriptionDto.builder().build();
-                List<Invoice> invoices = invoiceRepository.getInvoiceByPrescriptionId(prescription.getPrescriptionId());
-                if (!CollectionUtils.isEmpty(invoices)) {
-                    prescriptionDto.setInvoices(mapToInvoiceDtos(invoices));
-                }
-                prescriptionDto.setPrescriptionId(prescription.getPrescriptionId());
-                prescriptionDto.setImageUrl(prescription.getPrescriptionImgUrl());
-                prescriptionDtos.add(prescriptionDto);
+        prescriptionDtos = prescriptions.stream().map(prescription -> {
+            PrescriptionDto prescriptionDto = PrescriptionDto.builder()
+                    .prescriptionId(prescription.getPrescriptionId())
+                    .imageUrl(prescription.getPrescriptionImgUrl())
+                    .build();
+            List<Invoice> invoices = invoiceRepository.getInvoiceByPrescriptionId(prescription.getPrescriptionId());
+            if (!CollectionUtils.isEmpty(invoices)) {
+                prescriptionDto.setInvoices(mapToInvoiceDtos(invoices));
             }
-        }
+            return prescriptionDto;
+        }).collect(Collectors.toList());
         return UserPresRespDto.builder()
                 .status("200")
                 .message("Prescriptions fetched successfully")
@@ -144,7 +144,7 @@ public class PrescriptionServiceImpl implements PrescriptionService {
 
     private List<InvoiceDto> mapToInvoiceDtos(List<Invoice> invoices) {
         List<InvoiceDto> invoiceDtos = new ArrayList<>();
-        for (Invoice invoice : invoices) {
+        invoiceDtos = invoices.stream().map(invoice -> {
             User rep = userRepository.findByUserId(invoice.getUserId());
             if (rep == null) {
                 MessageDto messageDto = mapToMessageDto("404", "Medical Rep not found");
@@ -165,8 +165,8 @@ public class PrescriptionServiceImpl implements PrescriptionService {
             } else {
                 invoiceDto.setShopName(rep.getFullName());
             }
-            invoiceDtos.add(invoiceDto);
-        }
+            return invoiceDto;
+        }).collect(Collectors.toList());
         return invoiceDtos;
     }
 
